@@ -21,7 +21,12 @@ enum Sender {
 impl Sender {
     fn send(self, res: Result<Value, Value>) {
         match self {
-            Sender::Sync(sender) => sender.send(res).unwrap(),
+            Sender::Sync(sender) => loop {
+                match sender.send(res.clone()) {
+                    Ok(_) => break,
+                    Err(_) => continue,
+                }
+            },
             Sender::Async(mut cb) => cb(res),
         };
     }
